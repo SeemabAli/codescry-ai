@@ -1,7 +1,8 @@
-import { FeatureCard } from "./components/landing/FeatureCard";
-import { Navbar } from "./components/landing/Navbar";
-import { StepCard } from "./components/landing/StepCard";
-import { features, steps, techStack } from "./constants/landing";
+import Link from "next/link";
+import { FeatureCard } from "@/components/landing/FeatureCard";
+import { Navbar } from "@/components/landing/Navbar";
+import { StepCard } from "@/components/landing/StepCard";
+import { features, steps, techStack } from "@/constants/landing";
 
 export default function HomePage() {
   return (
@@ -26,12 +27,12 @@ export default function HomePage() {
         </p>
 
         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <a
-            href="#features"
+          <Link
+            href="/register"
             className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
           >
             Try Code Review
-          </a>
+          </Link>
 
           <a
             href="#how-it-works"
