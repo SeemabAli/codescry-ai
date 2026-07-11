@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/immutability */
 "use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { deleteReview, getReviews } from "@/services/review.service";
 import type { Review } from "@/types/review";
-import { getReviews } from "@/services/review.service";
 import { getAuthToken } from "@/utils/auth-storage";
 
 export default function ReviewsPage() {
@@ -13,33 +14,67 @@ export default function ReviewsPage() {
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState("");
 
   useEffect(() => {
-    async function loadReviews() {
-      const token = getAuthToken();
-
-      if (!token) {
-        setError("You are not logged in.");
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await getReviews(token);
-        setReviews(response.reviews);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError("Failed to load reviews");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     loadReviews();
   }, []);
+
+  async function loadReviews() {
+    const token = getAuthToken();
+
+    if (!token) {
+      setError("You are not logged in.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await getReviews(token);
+      setReviews(response.reviews);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to load reviews");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleDeleteReview(reviewId: string) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this review?"
+    );
+
+    if (!confirmed) return;
+
+    const token = getAuthToken();
+
+    if (!token) {
+      setError("You are not logged in.");
+      return;
+    }
+
+    setDeletingId(reviewId);
+
+    try {
+      await deleteReview(reviewId, token);
+
+      setReviews((currentReviews) =>
+        currentReviews.filter((review) => review._id !== reviewId)
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Failed to delete review");
+      }
+    } finally {
+      setDeletingId("");
+    }
+  }
 
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {
@@ -138,10 +173,9 @@ export default function ReviewsPage() {
       {!isLoading && !error && filteredReviews.length > 0 ? (
         <div className="mt-10 grid gap-5">
           {filteredReviews.map((review) => (
-            <Link
+            <div
               key={review._id}
-              href={`/reviews/${review._id}`}
-              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-cyan-400/40 hover:bg-white/[0.06]"
+              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"
             >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
                 <div>
@@ -150,7 +184,7 @@ export default function ReviewsPage() {
                       {review.title}
                     </h2>
 
-                    <span className="rounded-full border border-white/10 bg-slate-900 px-3 py-1 text-xs text-slate-300">
+                    <span className={getStatusClassName(review.status)}>
                       {review.status}
                     </span>
                   </div>
@@ -158,20 +192,60 @@ export default function ReviewsPage() {
                   <p className="mt-2 text-sm text-slate-400">
                     {review.fileName} • {review.codeType} • {review.reviewMode}
                   </p>
+
+                  <p className="mt-2 text-xs text-slate-500">
+                    {new Date(review.createdAt).toLocaleString()}
+                  </p>
                 </div>
 
-                <div className="text-left md:text-right">
-                  <p className="text-2xl font-bold text-white">
-                    {review.score === null ? "--" : review.score}
-                  </p>
+                <div className="flex flex-col gap-3 md:items-end">
+                  <div className="text-left md:text-right">
+                    <p className="text-2xl font-bold text-white">
+                      {review.score === null ? "--" : review.score}
+                    </p>
 
-                  <p className="mt-1 text-xs text-slate-500">Score</p>
+                    <p className="mt-1 text-xs text-slate-500">Score</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/reviews/${review._id}`}
+                      className="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                    >
+                      View
+                    </Link>
+
+                    <button
+                      type="button"
+                      disabled={deletingId === review._id}
+                      onClick={() => handleDeleteReview(review._id)}
+                      className={
+                        deletingId === review._id
+                          ? "cursor-not-allowed rounded-xl bg-slate-700 px-4 py-2 text-sm font-medium text-slate-400"
+                          : "rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-400/20"
+                      }
+                    >
+                      {deletingId === review._id ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       ) : null}
     </>
   );
+}
+
+function getStatusClassName(status: Review["status"]) {
+  if (status === "completed") {
+    return "rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-xs text-green-300";
+  }
+
+  if (status === "failed") {
+    return "rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-xs text-red-300";
+  }
+
+  return "rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs text-yellow-300";
 }

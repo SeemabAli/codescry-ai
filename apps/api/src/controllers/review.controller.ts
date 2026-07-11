@@ -2,30 +2,33 @@ import { isValidObjectId, Types } from "mongoose";
 import type { Response } from "express";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import { ReviewModel } from "../models/Review.model";
+import { analyzeReviewWithAI } from "../services/ai.service";
 import { createReviewSchema } from "../validations/review.validation";
 
 export async function createReviewController(
   req: AuthenticatedRequest,
   res: Response
-) {
+): Promise<void> {
   try {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Not authorized",
       });
+      return;
     }
 
     const validation = createReviewSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Validation failed",
         errors: validation.error.flatten().fieldErrors,
       });
+      return;
     }
 
     const { title, fileName, codeType, reviewMode, code } = validation.data;
@@ -40,8 +43,6 @@ export async function createReviewController(
       codeType,
       reviewMode,
       originalCode: code,
-
-      // AI fields will be filled later by FastAPI/LangChain service
       status: "pending",
       score: null,
       summary: "",
@@ -49,35 +50,89 @@ export async function createReviewController(
       issues: [],
       learningNotes: [],
       recommendedTopics: [],
+      aiProvider: "",
+      errorMessage: "",
     });
 
-    return res.status(201).json({
-      success: true,
-      message: "Review submitted successfully. AI processing will be connected next.",
-      review,
-    });
+    try {
+      const aiResult = await analyzeReviewWithAI({
+        fileName,
+        codeType,
+        reviewMode,
+        code,
+      });
+
+      const completedReview = await ReviewModel.findByIdAndUpdate(
+        review.id,
+        {
+          status: "completed",
+          score: aiResult.score,
+          summary: aiResult.summary,
+          issues: aiResult.issues,
+          improvedCode: aiResult.improvedCode,
+          learningNotes: aiResult.learningNotes,
+          recommendedTopics: aiResult.recommendedTopics,
+          aiProvider: aiResult.aiProvider,
+          errorMessage: "",
+        },
+        {
+          new: true,
+        }
+      );
+
+      res.status(201).json({
+        success: true,
+        message: "Review analyzed successfully",
+        review: completedReview,
+      });
+      return;
+    } catch (aiError) {
+      const errorMessage =
+        aiError instanceof Error ? aiError.message : "AI analysis failed";
+
+      const failedReview = await ReviewModel.findByIdAndUpdate(
+        review.id,
+        {
+          status: "failed",
+          errorMessage,
+        },
+        {
+          new: true,
+        }
+      );
+
+      res.status(201).json({
+        success: true,
+        message:
+          "Review was saved, but AI analysis failed. Please check AI service.",
+        review: failedReview,
+      });
+      return;
+    }
   } catch (error) {
     console.error("Create review error:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to create review",
     });
+    return;
   }
 }
 
 export async function getReviewsController(
   req: AuthenticatedRequest,
   res: Response
-) {
+): Promise<void> {
   try {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Not authorized",
       });
+      return;
     }
 
     const reviews = await ReviewModel.find({
@@ -87,41 +142,45 @@ export async function getReviewsController(
       .select("-originalCode -improvedCode")
       .lean();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       count: reviews.length,
       reviews,
     });
+    return;
   } catch (error) {
     console.error("Get reviews error:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to get reviews",
     });
+    return;
   }
 }
 
 export async function getReviewByIdController(
   req: AuthenticatedRequest,
   res: Response
-) {
+): Promise<void> {
   try {
     const userId = req.user?.id;
     const reviewId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Not authorized",
       });
+      return;
     }
 
     if (!isValidObjectId(reviewId)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Invalid review id",
       });
+      return;
     }
 
     const review = await ReviewModel.findOne({
@@ -130,46 +189,51 @@ export async function getReviewByIdController(
     }).lean();
 
     if (!review) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Review not found",
       });
+      return;
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       review,
     });
+    return;
   } catch (error) {
     console.error("Get review by id error:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to get review",
     });
+    return;
   }
 }
 
 export async function deleteReviewController(
   req: AuthenticatedRequest,
   res: Response
-) {
+): Promise<void> {
   try {
     const userId = req.user?.id;
     const reviewId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Not authorized",
       });
+      return;
     }
 
     if (!isValidObjectId(reviewId)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Invalid review id",
       });
+      return;
     }
 
     const review = await ReviewModel.findOneAndDelete({
@@ -178,22 +242,25 @@ export async function deleteReviewController(
     });
 
     if (!review) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "Review not found",
       });
+      return;
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Review deleted successfully",
     });
+    return;
   } catch (error) {
     console.error("Delete review error:", error);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to delete review",
     });
+    return;
   }
 }
