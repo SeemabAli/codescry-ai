@@ -101,8 +101,8 @@ export async function createReviewController(
         }
       );
 
-      res.status(201).json({
-        success: true,
+      res.status(502).json({
+        success: false,
         message:
           "Review was saved, but AI analysis failed. Please check AI service.",
         review: failedReview,
