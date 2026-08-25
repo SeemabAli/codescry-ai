@@ -87,6 +87,6 @@ class AnalyzeReviewResponse(BaseModel):
         description="Topics the developer should study next.",
     )
     aiProvider: str = Field(
-        default="openai",
+        default="gemini",
         description="AI provider/model used for the review.",
     )

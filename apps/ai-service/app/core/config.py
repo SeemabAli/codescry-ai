@@ -11,7 +11,13 @@ class Settings:
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
 
     AI_ANALYZER_MODE: str = os.getenv("AI_ANALYZER_MODE", "llm")
+    AI_PROVIDER: str = os.getenv("AI_PROVIDER", "gemini").lower()
 
+    # Gemini configuration
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
+    # OpenAI configuration (optional fallback)
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
