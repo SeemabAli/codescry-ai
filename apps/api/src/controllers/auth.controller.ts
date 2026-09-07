@@ -75,7 +75,7 @@ export async function loginController(req: Request, res: Response) {
 
     const user = await UserModel.findOne({ email }).select("+password");
 
-    if (!user) {
+    if (!user || !user.password) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",

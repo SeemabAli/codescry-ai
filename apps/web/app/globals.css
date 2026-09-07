@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Developer Dark Mode Roles (Obsidian, Carbon & Crimson) */
+  --paper: #0D1117;
+  --paper-dim: #161B22;
+  --paper-raised: #21262D;
+
+  --ink: #F0F6FC;
+  --ink-faint: #8B949E;
+  --ink-hairline: #30363D;
+
+  --pen: #F85149;
+  --pen-hover: #FF6B6B;
+
+  /* Semantic Diff Colors for Dark Mode (Functional GitHub-style git diff) */
+  --diff-add: #3FB950;
+  --diff-add-bg: rgba(63, 185, 80, 0.15);
+  --diff-del: #F85149;
+  --diff-del-bg: rgba(248, 81, 73, 0.15);
+
+  /* Base theme mappings */
+  --background: var(--paper);
+  --foreground: var(--ink);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-hairline: var(--ink-hairline);
+  --color-pen: var(--pen);
+  --color-pen-hover: var(--pen-hover);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-diff-add: var(--diff-add);
+  --color-diff-add-bg: var(--diff-add-bg);
+  --color-diff-del: var(--diff-del);
+  --color-diff-del-bg: var(--diff-del-bg);
+
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Red Pen focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--pen);
+  outline-offset: 2px;
+}
+
+/* Editorial rubber stamp animation */
+@keyframes stamp-down {
+  0% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.0);
+    opacity: 1;
+  }
+}
+
+.animate-stamp {
+  animation: stamp-down 180ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stamp {
+    animation: none;
+    transform: scale(1.0);
+  }
+}
+
+/* Custom scrollbars matching the paper & ink aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--paper-dim);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ink-hairline);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-faint);
+}
+
+/* CodeMirror Red Pen theme styling */
+.cm-editor {
+  background-color: var(--paper-raised) !important;
+  color: var(--ink) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+}
+
+.cm-editor.cm-focused {
+  outline: none !important;
+}
+
+.cm-gutters {
+  background-color: var(--paper-dim) !important;
+  color: var(--ink-faint) !important;
+  border-right: 1px solid var(--ink-hairline) !important;
+}
+
+.cm-activeLineGutter {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
+.cm-activeLine {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.cm-cursor {
+  border-left: 2px solid var(--pen) !important;
 }

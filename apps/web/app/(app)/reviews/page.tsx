@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/immutability */
 "use client";
 
 import Link from "next/link";
@@ -6,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { deleteReview, getReviews } from "@/services/review.service";
 import type { Review } from "@/types/review";
 import { getAuthToken } from "@/utils/auth-storage";
+import { WaxSealBadge } from "../dashboard/page";
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -45,7 +45,7 @@ export default function ReviewsPage() {
 
   async function handleDeleteReview(reviewId: string) {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this review?"
+      "Remove this review entry from the ledger?"
     );
 
     if (!confirmed) return;
@@ -89,44 +89,51 @@ export default function ReviewsPage() {
   }, [reviews, search, codeType]);
 
   return (
-    <>
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div className="max-w-6xl pb-16">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-4 border-b border-[var(--ink-hairline)] pb-6 md:flex-row md:items-end">
         <div>
-          <p className="text-sm font-medium text-cyan-300">Review History</p>
+          <div className="font-mono text-xs text-[var(--ink-faint)] flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 bg-[var(--pen)] rounded-[1px]" />
+            <span>Ledger Archives</span>
+          </div>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Your code reviews
+          <h1 className="mt-2 font-serif text-3xl font-normal tracking-tight text-[var(--ink)]">
+            Review History
           </h1>
 
-          <p className="mt-3 max-w-2xl text-slate-400">
-            View your previous AI code reviews, scores, issues, and improved
-            code suggestions.
+          <p className="mt-1 text-xs text-[var(--ink-faint)] max-w-xl">
+            Complete archive of annotated pull requests, margin evaluations, and reviewer decisions.
           </p>
         </div>
 
-        <Link
-          href="/reviews/new"
-          className="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-        >
-          New Review
-        </Link>
+        <div>
+          <Link
+            href="/reviews/new"
+            className="rounded-[4px] bg-[var(--pen)] px-4 py-2 text-xs font-medium text-white transition hover:bg-[var(--pen-hover)] inline-flex items-center gap-2"
+          >
+            <span>Start New Review</span>
+            <span className="font-mono opacity-70">→</span>
+          </Link>
+        </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-4 md:flex-row">
+      {/* Filter Row */}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row text-xs">
         <input
           type="text"
-          placeholder="Search reviews..."
+          placeholder="Filter by title or filename..."
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400 md:max-w-sm"
+          className="w-full sm:max-w-xs rounded-[2px] border border-[var(--ink-hairline)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--ink)] outline-none placeholder:text-[var(--ink-faint)]/50 focus:border-[var(--pen)]"
         />
 
         <select
           value={codeType}
           onChange={(event) => setCodeType(event.target.value)}
-          className="rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400"
+          className="rounded-[2px] border border-[var(--ink-hairline)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--ink)] outline-none focus:border-[var(--pen)]"
         >
-          <option value="all">All code types</option>
+          <option value="all">All file types</option>
           <option value="react-component">React Component</option>
           <option value="express-route">Express Route</option>
           <option value="express-controller">Express Controller</option>
@@ -136,116 +143,91 @@ export default function ReviewsPage() {
       </div>
 
       {isLoading ? (
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-          <p className="mt-5 text-sm text-slate-400">Loading reviews...</p>
+        <div className="mt-10 rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper)] p-12 text-center">
+          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-[var(--pen)] border-t-transparent" />
+          <p className="mt-4 font-mono text-xs text-[var(--ink-faint)]">
+            Loading archive entries...
+          </p>
         </div>
       ) : null}
 
       {error ? (
-        <div className="mt-10 rounded-3xl border border-red-400/30 bg-red-400/10 p-6 text-red-300">
+        <div className="mt-8 rounded-[4px] border border-[var(--pen)]/30 bg-[var(--diff-del-bg)] p-4 text-xs text-[var(--pen)]">
           {error}
         </div>
       ) : null}
 
       {!isLoading && !error && filteredReviews.length === 0 ? (
-        <div className="mt-10 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-            0
-          </div>
-
-          <h2 className="mt-6 text-xl font-semibold">No reviews found</h2>
-
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-            You have not created any code reviews yet. Submit your first code
-            snippet and your review history will appear here.
+        <div className="mt-10 rounded-[4px] border border-dashed border-[var(--ink-hairline)] bg-[var(--paper)] p-12 text-center">
+          <div className="font-mono text-sm text-[var(--ink-faint)] mb-2">◇</div>
+          <h2 className="font-serif text-xl font-normal text-[var(--ink)]">
+            No entries matched your search.
+          </h2>
+          <p className="mx-auto mt-2 max-w-sm text-xs text-[var(--ink-faint)]">
+            Adjust your filter keywords or submit a new diff to the ledger.
           </p>
-
-          <Link
-            href="/reviews/new"
-            className="mt-6 inline-flex rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-          >
-            Create First Review
-          </Link>
         </div>
       ) : null}
 
       {!isLoading && !error && filteredReviews.length > 0 ? (
-        <div className="mt-10 grid gap-5">
-          {filteredReviews.map((review) => (
-            <div
-              key={review._id}
-              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"
-            >
-              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-xl font-semibold text-white">
-                      {review.title}
-                    </h2>
+        <div className="mt-6 rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper)] overflow-hidden">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 border-b border-[var(--ink-hairline)] bg-[var(--paper-dim)] px-4 py-2.5 font-mono text-[11px] text-[var(--ink-faint)] uppercase tracking-wider">
+            <div className="col-span-5 sm:col-span-5">File & Description</div>
+            <div className="col-span-3 sm:col-span-3">Status</div>
+            <div className="col-span-2 sm:col-span-2 text-right">Score</div>
+            <div className="col-span-2 sm:col-span-2 text-right">Actions</div>
+          </div>
 
-                    <span className={getStatusClassName(review.status)}>
-                      {review.status}
-                    </span>
+          {/* Table Rows */}
+          <div className="divide-y divide-[var(--ink-hairline)] font-mono text-xs">
+            {filteredReviews.map((review) => (
+              <div
+                key={review._id}
+                className="grid grid-cols-12 items-center px-4 py-3 hover:bg-[var(--paper-raised)] transition"
+              >
+                <div className="col-span-5 sm:col-span-5 pr-4">
+                  <Link
+                    href={`/reviews/${review._id}`}
+                    className="font-sans text-xs font-medium text-[var(--ink)] hover:text-[var(--pen)] hover:underline block truncate"
+                  >
+                    {review.title}
+                  </Link>
+                  <div className="font-mono text-[10px] text-[var(--ink-faint)] mt-0.5 truncate">
+                    {review.fileName} · {review.codeType} ·{" "}
+                    {new Date(review.createdAt).toLocaleDateString()}
                   </div>
-
-                  <p className="mt-2 text-sm text-slate-400">
-                    {review.fileName} • {review.codeType} • {review.reviewMode}
-                  </p>
-
-                  <p className="mt-2 text-xs text-slate-500">
-                    {new Date(review.createdAt).toLocaleString()}
-                  </p>
                 </div>
 
-                <div className="flex flex-col gap-3 md:items-end">
-                  <div className="text-left md:text-right">
-                    <p className="text-2xl font-bold text-white">
-                      {review.score === null ? "--" : review.score}
-                    </p>
+                <div className="col-span-3 sm:col-span-3">
+                  <WaxSealBadge status={review.status} />
+                </div>
 
-                    <p className="mt-1 text-xs text-slate-500">Score</p>
-                  </div>
+                <div className="col-span-2 sm:col-span-2 text-right font-mono text-xs text-[var(--ink)]">
+                  {review.score === null ? "—" : `${review.score}/100`}
+                </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Link
-                      href={`/reviews/${review._id}`}
-                      className="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-                    >
-                      View
-                    </Link>
-
-                    <button
-                      type="button"
-                      disabled={deletingId === review._id}
-                      onClick={() => handleDeleteReview(review._id)}
-                      className={
-                        deletingId === review._id
-                          ? "cursor-not-allowed rounded-xl bg-slate-700 px-4 py-2 text-sm font-medium text-slate-400"
-                          : "rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-400/20"
-                      }
-                    >
-                      {deletingId === review._id ? "Deleting..." : "Delete"}
-                    </button>
-                  </div>
+                <div className="col-span-2 sm:col-span-2 flex items-center justify-end gap-3">
+                  <Link
+                    href={`/reviews/${review._id}`}
+                    className="text-[11px] font-medium text-[var(--pen)] hover:underline"
+                  >
+                    Open
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={deletingId === review._id}
+                    onClick={() => handleDeleteReview(review._id)}
+                    className="text-[11px] text-[var(--ink-faint)] hover:text-[var(--pen)] transition"
+                  >
+                    {deletingId === review._id ? "..." : "Delete"}
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : null}
-    </>
+    </div>
   );
-}
-
-function getStatusClassName(status: Review["status"]) {
-  if (status === "completed") {
-    return "rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-xs text-green-300";
-  }
-
-  if (status === "failed") {
-    return "rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-xs text-red-300";
-  }
-
-  return "rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs text-yellow-300";
 }

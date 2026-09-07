@@ -1,104 +1,209 @@
 import Link from "next/link";
-import { FeatureCard } from "@/components/landing/FeatureCard";
 import { Navbar } from "@/components/landing/Navbar";
+import { FeatureCard } from "@/components/landing/FeatureCard";
 import { StepCard } from "@/components/landing/StepCard";
-import { features, steps, techStack } from "@/constants/landing";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="mx-auto flex max-w-6xl flex-col items-center px-6 py-24 text-center">
-        <div className="mb-6 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-300">
-          AI code review for MERN developers
+      {/* Hero Section — Left Aligned Editorial Sheet */}
+      <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 border-b border-[var(--ink-hairline)]">
+        <div className="max-w-3xl">
+          <div className="mb-4 inline-flex items-center gap-2 font-mono text-xs text-[var(--ink-faint)]">
+            <span className="h-1.5 w-1.5 bg-[var(--pen)] rounded-[1px]" />
+            <span>The Red Pen — Editorial Code Review</span>
+          </div>
+
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[var(--ink)] leading-[1.15]">
+            Reviewing code like marking up an essay.
+          </h1>
+
+          <p className="mt-6 text-base sm:text-lg leading-relaxed text-[var(--ink-faint)] max-w-2xl font-normal">
+            Paper, ink, and one red pen. Most tools borrow the visual noise of
+            chat apps or glassy SaaS dashboards. CodeScry-AI treats your screen like a
+            proofreader’s page — leaving precise margin notes so you can see at a glance
+            what still needs a decision.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link
+              href="/register"
+              className="rounded-[4px] bg-[var(--pen)] px-6 py-3 text-sm font-medium text-white transition hover:bg-[var(--pen-hover)] inline-flex items-center gap-2"
+            >
+              <span>Begin a Review</span>
+              <span className="font-mono text-xs opacity-80">→</span>
+            </Link>
+
+            <a
+              href="#ledger"
+              className="rounded-[4px] border border-[var(--ink-hairline)] px-6 py-3 text-sm font-medium text-[var(--ink)] transition hover:bg-[var(--paper-raised)]"
+            >
+              Inspect the Ledger Grid
+            </a>
+          </div>
         </div>
 
-        <h1 className="max-w-4xl text-4xl font-bold tracking-tight md:text-6xl">
-          Review your code with an{" "}
-          <span className="text-cyan-300">AI senior developer</span>
-        </h1>
+        {/* The Ledger Grid Preview */}
+        <div id="ledger" className="mt-14 rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper)] overflow-hidden">
+          {/* Header Bar */}
+          <div className="flex items-center justify-between border-b border-[var(--ink-hairline)] bg-[var(--paper-dim)] px-4 py-2.5 font-mono text-xs text-[var(--ink-faint)]">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-[1px] bg-[var(--ink-faint)]" />
+              <span>pull-request-142.diff</span>
+              <span className="text-[var(--ink-hairline)]">/</span>
+              <span>auth-refactor</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[var(--pen)] font-medium">■ Changes requested</span>
+            </div>
+          </div>
 
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          CodeScry AI helps developers find bugs, security issues, performance
-          problems, and bad practices in React, Node.js, Express, and MongoDB
-          code.
-        </p>
+          {/* 3-Column Ledger Grid Preview */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[var(--ink-hairline)]">
+            {/* Column 1: File Tree (~220px / 3 cols) */}
+            <div className="lg:col-span-3 bg-[var(--paper-dim)] p-4 font-mono text-xs space-y-1">
+              <div className="text-[var(--ink-faint)] uppercase tracking-wider text-[10px] pb-2 font-semibold">
+                Files Changed (3)
+              </div>
+              <div className="border-l-2 border-[var(--pen)] pl-2.5 py-1 text-[var(--ink)] font-medium bg-[var(--paper)]">
+                src/routes/auth.ts
+              </div>
+              <div className="pl-3 py-1 text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer">
+                src/models/user.ts
+              </div>
+              <div className="pl-3 py-1 text-[var(--ink-faint)] hover:text-[var(--ink)] cursor-pointer">
+                tests/auth.test.ts
+              </div>
+            </div>
 
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <Link
-            href="/register"
-            className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
-          >
-            Try Code Review
-          </Link>
+            {/* Column 2: Diff Pane (6 cols) */}
+            <div className="lg:col-span-5 bg-[var(--paper)] font-mono text-xs">
+              <div className="divide-y divide-[var(--ink-hairline)]/50">
+                <div className="flex items-center h-7 text-[var(--ink-faint)]">
+                  <span className="w-10 text-right pr-3 bg-[var(--paper-dim)] border-r border-[var(--ink-hairline)] select-none">24</span>
+                  <span className="px-3 text-[var(--ink-faint)]">@@ -24,7 +24,10 @@</span>
+                </div>
+                <div className="flex items-center h-7 text-[var(--ink-faint)]">
+                  <span className="w-10 text-right pr-3 bg-[var(--paper-dim)] border-r border-[var(--ink-hairline)] select-none">25</span>
+                  <span className="px-3">const router = Router();</span>
+                </div>
+                <div className="flex items-center h-7 bg-[var(--diff-del-bg)] text-[var(--diff-del)]">
+                  <span className="w-10 text-right pr-3 bg-[var(--diff-del-bg)] border-r border-[var(--diff-del)]/20 select-none">26</span>
+                  <span className="px-3">- const user = await User.findOne(&#123; password &#125;);</span>
+                </div>
+                <div className="flex items-center h-7 bg-[var(--diff-add-bg)] text-[var(--diff-add)]">
+                  <span className="w-10 text-right pr-3 bg-[var(--diff-add-bg)] border-r border-[var(--diff-add)]/20 select-none">26</span>
+                  <span className="px-3">+ const isMatch = await bcrypt.compare(pass, user.hash);</span>
+                </div>
+                <div className="flex items-center h-7 text-[var(--ink)]">
+                  <span className="w-10 text-right pr-3 bg-[var(--paper-dim)] border-r border-[var(--ink-hairline)] select-none">27</span>
+                  <span className="px-3">if (!isMatch) return res.status(401);</span>
+                </div>
+              </div>
+            </div>
 
-          <a
-            href="#how-it-works"
-            className="rounded-2xl border border-white/15 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
-          >
-            View Demo
-          </a>
-        </div>
-      </section>
+            {/* Column 3: Margin Notes (4 cols) */}
+            <div className="lg:col-span-4 p-4 bg-[var(--paper-raised)] space-y-3">
+              <div className="text-[var(--ink-faint)] uppercase tracking-wider text-[10px] font-semibold font-mono">
+                Margin Notes (1 Unresolved)
+              </div>
 
-      {/* Features Section */}
-      <section
-        id="features"
-        className="mx-auto grid max-w-6xl gap-6 px-6 pb-24 md:grid-cols-3"
-      >
-        {features.map((feature) => (
-          <FeatureCard
-            key={feature.title}
-            title={feature.title}
-            description={feature.description}
-          />
-        ))}
-      </section>
-
-      {/* How it works */}
-      <section
-        id="how-it-works"
-        className="border-t border-white/10 bg-slate-900/50"
-      >
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-3xl font-bold tracking-tight">
-            How CodeScry AI works
-          </h2>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {steps.map((step) => (
-              <StepCard
-                key={step.number}
-                number={step.number}
-                title={step.title}
-                description={step.description}
-              />
-            ))}
+              {/* AI Suggestion Card */}
+              <div className="rounded-[4px] border border-dashed border-[var(--ink-hairline)] bg-[var(--paper)] p-3 text-xs">
+                <div className="flex items-center gap-1.5 text-[var(--ink-faint)] font-mono text-[11px] mb-1.5">
+                  <span className="text-[var(--ink-faint)]">◇</span>
+                  <span>CodeScry · suggestion</span>
+                  <span className="ml-auto text-[10px]">line 26</span>
+                </div>
+                <p className="text-[var(--ink)] leading-relaxed">
+                  Avoid plaintext credential queries. Use constant-time comparison on hashed tokens to protect against timing attacks.
+                </p>
+                <div className="mt-2 pt-2 border-t border-[var(--ink-hairline)]/50 flex items-center justify-between text-[11px]">
+                  <span className="text-[var(--ink-faint)]">Endorsed by reviewer</span>
+                  <span className="font-mono text-[var(--pen)] font-medium">unresolved</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Tech Stack */}
-      <section id="tech-stack" className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-3xl font-bold tracking-tight">Tech Stack</h2>
+      {/* Core Principles */}
+      <section id="concept" className="mx-auto max-w-6xl px-6 py-16 border-b border-[var(--ink-hairline)]">
+        <div className="max-w-xl mb-10">
+          <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[var(--ink)]">
+            Discipline in three rules
+          </h2>
+          <p className="mt-2 text-sm text-[var(--ink-faint)] leading-relaxed">
+            The palette is 60% paper, 30% ink, and 10% red pen. No shadows. No glass.
+          </p>
+        </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          {techStack.map((tech) => (
-            <span
-              key={tech}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300"
-            >
-              {tech}
-            </span>
-          ))}
+        <div className="grid gap-6 md:grid-cols-3">
+          <FeatureCard
+            title="Paper, not glass"
+            description="Flat surfaces, hairline dividers, zero drop shadows. Monitors are stared at for hours; bright glassy cards strain eyes, paper calms them."
+          />
+          <FeatureCard
+            title="One accent for judgment"
+            description="The red pen color is the scarcest resource on the page. It is reserved exclusively for the moment a human reviewer must make a call."
+          />
+          <FeatureCard
+            title="Semantic git diffs"
+            description="Git's add and delete colors remain functional and muted. They never leak into UI buttons, active navigation flags, or decorative badges."
+          />
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-500">
-        Built for developers learning AI-powered web applications.
+      {/* Workflow Section */}
+      <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 border-b border-[var(--ink-hairline)]">
+        <div className="max-w-xl mb-10">
+          <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[var(--ink)]">
+            The editorial workflow
+          </h2>
+          <p className="mt-2 text-sm text-[var(--ink-faint)] leading-relaxed">
+            How code moves from candidate diff to approved ledger entry.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <StepCard
+            number="01"
+            title="Submit Pull Request Diff"
+            description="Provide a GitHub PR identifier or paste arbitrary diff lines directly into the ruled monospace editor."
+          />
+          <StepCard
+            number="02"
+            title="CodeScry Pre-reads the Page"
+            description="The AI agent scans AST nodes, security implications, and MERN best practices, planting quiet margin notes marked with ◇."
+          />
+          <StepCard
+            number="03"
+            title="Apply the Red Pen"
+            description="Human reviewer resolves margin notes, evaluates recommendations, and executes a definitive Approval or Changes Requested stamp."
+          />
+        </div>
+      </section>
+
+      {/* Editorial Footer */}
+      <footer className="mx-auto max-w-6xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[var(--ink-faint)]">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-1 bg-[var(--pen)] rounded-[1px]" />
+          <span>CodeScry-AI — Built for engineers who take pride in clean code.</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <Link href="/login" className="hover:text-[var(--ink)]">
+            Login
+          </Link>
+          <Link href="/register" className="hover:text-[var(--ink)]">
+            Register
+          </Link>
+          <Link href="/dashboard" className="text-[var(--pen)] hover:underline">
+            Dashboard →
+          </Link>
+        </div>
       </footer>
     </main>
   );

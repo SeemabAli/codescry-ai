@@ -64,7 +64,13 @@ export default function DashboardPage() {
 
     const highPriorityIssues = reviews.reduce((total, review) => {
       const count = review.issues.filter(
-        (issue) => issue.severity === "Critical" || issue.severity === "High"
+        (issue) =>
+          issue.severity === "Critical" ||
+          issue.severity === "High" ||
+          (issue as unknown as { severity_level?: string }).severity_level ===
+            "critical" ||
+          (issue as unknown as { severity_level?: string }).severity_level ===
+            "high"
       ).length;
 
       return total + count;
@@ -84,199 +90,220 @@ export default function DashboardPage() {
     };
   }, [reviews]);
 
-  const recentReviews = reviews.slice(0, 5);
+  const recentReviews = reviews.slice(0, 6);
 
   return (
-    <>
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+    <div className="max-w-6xl pb-16">
+      {/* Header Bar */}
+      <div className="flex flex-col justify-between gap-4 border-b border-[var(--ink-hairline)] pb-6 md:flex-row md:items-end">
         <div>
-          <p className="text-sm font-medium text-cyan-300">
-            Developer Dashboard
-          </p>
+          <div className="font-mono text-xs text-[var(--ink-faint)] flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 bg-[var(--pen)] rounded-[1px]" />
+            <span>Editorial Ledger · Overview</span>
+          </div>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Welcome to CodeScry AI
+          <h1 className="mt-2 font-serif text-3xl font-normal tracking-tight text-[var(--ink)]">
+            Review Desk
           </h1>
 
-          <p className="mt-3 max-w-2xl text-slate-400">
-            Track your code reviews, monitor your improvement, and start a new
-            AI-powered code review.
+          <p className="mt-1 text-xs text-[var(--ink-faint)] max-w-xl">
+            Candidate pull requests, active margin notes, and code quality evaluations.
           </p>
         </div>
 
-        <Link
-          href="/reviews/new"
-          className="rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-        >
-          Start New Review
-        </Link>
+        <div>
+          <Link
+            href="/reviews/new"
+            className="rounded-[4px] bg-[var(--pen)] px-4 py-2 text-xs font-medium text-white transition hover:bg-[var(--pen-hover)] inline-flex items-center gap-2"
+          >
+            <span>Start New Review</span>
+            <span className="font-mono opacity-70">→</span>
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-          <p className="mt-5 text-sm text-slate-400">
-            Loading dashboard data...
+        <div className="mt-12 rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper)] p-12 text-center">
+          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-[var(--pen)] border-t-transparent" />
+          <p className="mt-4 font-mono text-xs text-[var(--ink-faint)]">
+            Reading ledger entries...
           </p>
         </div>
       ) : null}
 
       {error ? (
-        <div className="mt-10 rounded-3xl border border-red-400/30 bg-red-400/10 p-6 text-red-300">
+        <div className="mt-8 rounded-[4px] border border-[var(--pen)]/30 bg-[var(--diff-del-bg)] p-4 text-xs text-[var(--pen)]">
           {error}
         </div>
       ) : null}
 
       {!isLoading && !error ? (
         <>
-          <div className="mt-10 grid gap-6 md:grid-cols-3 xl:grid-cols-6">
-            <DashboardStatCard
-              label="Total Reviews"
-              value={String(stats.totalReviews)}
-              description="Code reviews created"
+          {/* Stat Metrics Grid */}
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y md:divide-y-0 md:divide-x divide-[var(--ink-hairline)] border border-[var(--ink-hairline)] bg-[var(--paper)] rounded-[4px] overflow-hidden">
+            <StatCell label="Total Reviews" value={String(stats.totalReviews)} />
+            <StatCell label="Completed" value={String(stats.completedReviews)} />
+            <StatCell
+              label="Avg. Score"
+              value={stats.averageScore === null ? "—" : `${stats.averageScore}/100`}
             />
-
-            <DashboardStatCard
-              label="Completed"
-              value={String(stats.completedReviews)}
-              description="AI reviews completed"
-            />
-
-            <DashboardStatCard
-              label="Average Score"
-              value={stats.averageScore === null ? "--" : `${stats.averageScore}`}
-              description="Code quality score"
-            />
-
-            <DashboardStatCard
-              label="Issues Found"
-              value={String(stats.totalIssues)}
-              description="Total detected issues"
-            />
-
-            <DashboardStatCard
-              label="High Priority"
+            <StatCell label="Margin Notes" value={String(stats.totalIssues)} />
+            <StatCell
+              label="Critical"
               value={String(stats.highPriorityIssues)}
-              description="Critical/high issues"
+              accent={stats.highPriorityIssues > 0}
             />
-
-            <DashboardStatCard
-              label="Failed"
-              value={String(stats.failedReviews)}
-              description="Failed AI reviews"
-            />
+            <StatCell label="Failed" value={String(stats.failedReviews)} />
           </div>
 
           {reviews.length === 0 ? (
-            <div className="mt-10 rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-                CS
-              </div>
-
-              <h2 className="mt-6 text-xl font-semibold">
-                No code reviews yet
+            /* Empty State: Centered Fraunces headline, one action */
+            <div className="mt-12 rounded-[4px] border border-dashed border-[var(--ink-hairline)] bg-[var(--paper)] p-12 text-center">
+              <div className="font-mono text-sm text-[var(--ink-faint)] mb-2">◇</div>
+              <h2 className="font-serif text-xl font-normal text-[var(--ink)]">
+                No reviews yet in this ledger.
               </h2>
-
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-                Your dashboard will show review history, issue trends, and code
-                quality analytics after you submit your first code review.
+              <p className="mx-auto mt-2 max-w-sm text-xs text-[var(--ink-faint)]">
+                Submit a pull request diff or paste controller code to begin your first markup.
               </p>
-
-              <Link
-                href="/reviews/new"
-                className="mt-6 inline-flex rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-              >
-                Create First Review
-              </Link>
+              <div className="mt-6">
+                <Link
+                  href="/reviews/new"
+                  className="rounded-[4px] bg-[var(--pen)] px-5 py-2 text-xs font-medium text-white transition hover:bg-[var(--pen-hover)]"
+                >
+                  Create First Review
+                </Link>
+              </div>
             </div>
           ) : (
+            /* Ledger Table of Recent Reviews */
             <section className="mt-10">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight">
-                  Recent Reviews
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-serif text-xl font-normal text-[var(--ink)]">
+                  Recent Ledger Entries
                 </h2>
 
                 <Link
                   href="/reviews"
-                  className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+                  className="font-mono text-xs text-[var(--ink-faint)] hover:text-[var(--ink)] underline underline-offset-4"
                 >
-                  View all
+                  View full history ({reviews.length}) →
                 </Link>
               </div>
 
-              <div className="grid gap-5">
-                {recentReviews.map((review) => (
-                  <Link
-                    key={review._id}
-                    href={`/reviews/${review._id}`}
-                    className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-cyan-400/40 hover:bg-white/[0.06]"
-                  >
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="text-lg font-semibold text-white">
-                            {review.title}
-                          </h3>
+              <div className="rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper)] overflow-hidden">
+                {/* Table Header */}
+                <div className="grid grid-cols-12 border-b border-[var(--ink-hairline)] bg-[var(--paper-dim)] px-4 py-2 font-mono text-[11px] text-[var(--ink-faint)] uppercase tracking-wider">
+                  <div className="col-span-5 sm:col-span-6">Diff / Title</div>
+                  <div className="col-span-3 sm:col-span-2 text-left">Status</div>
+                  <div className="col-span-2 text-right">Score</div>
+                  <div className="col-span-2 text-right">Actions</div>
+                </div>
 
-                          <span className={getStatusClassName(review.status)}>
-                            {review.status}
-                          </span>
+                {/* Table Rows */}
+                <div className="divide-y divide-[var(--ink-hairline)] font-mono text-xs">
+                  {recentReviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="grid grid-cols-12 items-center px-4 py-3 hover:bg-[var(--paper-raised)] transition"
+                    >
+                      <div className="col-span-5 sm:col-span-6 pr-4">
+                        <Link
+                          href={`/reviews/${review._id}`}
+                          className="font-sans text-xs font-medium text-[var(--ink)] hover:text-[var(--pen)] hover:underline block truncate"
+                        >
+                          {review.title}
+                        </Link>
+                        <div className="font-mono text-[10px] text-[var(--ink-faint)] mt-0.5 truncate">
+                          {review.fileName || "unnamed.diff"} · {review.codeType || "diff"}
                         </div>
-
-                        <p className="mt-2 text-sm text-slate-400">
-                          {review.fileName} • {review.codeType}
-                        </p>
                       </div>
 
-                      <div className="text-left md:text-right">
-                        <p className="text-2xl font-bold text-white">
-                          {review.score === null ? "--" : review.score}
-                        </p>
+                      <div className="col-span-3 sm:col-span-2">
+                        <WaxSealBadge status={review.status} />
+                      </div>
 
-                        <p className="mt-1 text-xs text-slate-500">Score</p>
+                      <div className="col-span-2 text-right font-mono text-xs text-[var(--ink)]">
+                        {review.score === null ? "—" : `${review.score}/100`}
+                      </div>
+
+                      <div className="col-span-2 text-right">
+                        <Link
+                          href={`/reviews/${review._id}`}
+                          className="text-[11px] font-medium text-[var(--pen)] hover:underline"
+                        >
+                          Open →
+                        </Link>
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  ))}
+                </div>
               </div>
             </section>
           )}
         </>
       ) : null}
-    </>
-  );
-}
-
-function DashboardStatCard({
-  label,
-  value,
-  description,
-}: {
-  label: string;
-  value: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <p className="text-sm text-slate-400">{label}</p>
-
-      <p className="mt-3 text-3xl font-bold tracking-tight text-white">
-        {value}
-      </p>
-
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
     </div>
   );
 }
 
-function getStatusClassName(status: Review["status"]) {
-  if (status === "completed") {
-    return "rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1 text-xs text-green-300";
+function StatCell({
+  label,
+  value,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  return (
+    <div className="p-4">
+      <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--ink-faint)]">
+        {label}
+      </p>
+      <p
+        className={`mt-1 font-serif text-2xl font-normal ${
+          accent ? "text-[var(--pen)]" : "text-[var(--ink)]"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Wax Seal Status Mark:
+ * ■ Open — --ink
+ * ■ Changes requested — --pen
+ * ■ Approved — --diff-add
+ * ■ Merged — --ink-faint
+ */
+export function WaxSealBadge({ status }: { status: string }) {
+  const norm = (status || "").toLowerCase();
+
+  if (norm === "completed" || norm === "approved") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--diff-add)]">
+        <span className="text-[9px]">■</span>
+        <span>Approved</span>
+      </span>
+    );
   }
 
-  if (status === "failed") {
-    return "rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-xs text-red-300";
+  if (norm === "failed" || norm === "changes requested" || norm === "rejected") {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--pen)] font-medium">
+        <span className="text-[9px]">■</span>
+        <span>Changes requested</span>
+      </span>
+    );
   }
 
-  return "rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1 text-xs text-yellow-300";
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--ink)]">
+      <span className="text-[9px]">■</span>
+      <span>Open</span>
+    </span>
+  );
 }

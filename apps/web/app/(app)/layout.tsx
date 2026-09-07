@@ -10,28 +10,28 @@ export default function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <AuthGuard>
         <div className="flex min-h-screen">
           <AppSidebar />
 
-          <section className="flex-1 px-6 py-6 lg:px-10">
+          <section className="flex-1 px-4 py-6 sm:px-8 lg:px-10 overflow-x-hidden">
             {/* Mobile Header */}
-            <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5 lg:hidden">
+            <div className="mb-6 flex items-center justify-between border-b border-[var(--ink-hairline)] pb-4 lg:hidden">
               <Link href="/">
                 <Logo />
               </Link>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Link
                   href="/reviews/new"
-                  className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950"
+                  className="rounded-[4px] bg-[var(--pen)] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[var(--pen-hover)]"
                 >
                   New Review
                 </Link>
 
-                <LogoutButton className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-red-400/20">
-                  Logout
+                <LogoutButton className="rounded-[4px] border border-[var(--ink-hairline)] px-2.5 py-1.5 text-xs font-medium text-[var(--ink-faint)] transition hover:bg-[var(--paper-raised)] hover:text-[var(--ink)]">
+                  Log out
                 </LogoutButton>
               </div>
             </div>

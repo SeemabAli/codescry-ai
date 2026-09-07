@@ -1,0 +1,16 @@
+{
+  "name": "codescry-ai",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm --prefix apps/web run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run dev",
+    "build": "npm --prefix apps/web run build",
+    "build:web": "npm --prefix apps/web run build",
+    "build:api": "npm --prefix apps/api run build"
+  }
+}

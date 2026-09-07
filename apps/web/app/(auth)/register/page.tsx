@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Logo } from "@/components/common/Logo";
 import { registerUser } from "@/services/auth.service";
 import { saveAuthSession } from "@/utils/auth-storage";
@@ -37,7 +37,7 @@ export default function RegisterPage() {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError("Failed to create account");
+        setError("Failed to create account. Please verify your details.");
       }
     } finally {
       setIsLoading(false);
@@ -45,75 +45,76 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-white">
-      <div className="w-full max-w-md">
+    <main className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-6 py-12 text-[var(--ink)]">
+      <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
           <Link href="/">
             <Logo />
           </Link>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl shadow-cyan-950/20">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Create your account
+        <div className="rounded-[4px] border border-[var(--ink-hairline)] bg-[var(--paper-raised)] p-8">
+          <div className="mb-6">
+            <h1 className="font-serif text-2xl font-normal tracking-tight text-[var(--ink)]">
+              Register Reviewer
             </h1>
 
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              Start using CodeScry AI to review and improve your MERN stack
-              code.
+            <p className="mt-2 text-xs leading-relaxed text-[var(--ink-faint)]">
+              Create an account to begin annotating and reviewing pull requests.
             </p>
           </div>
 
           {error ? (
-            <div className="mb-5 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+            <div className="mb-5 rounded-[2px] border border-[var(--pen)]/30 bg-[var(--diff-del-bg)] px-3.5 py-2.5 text-xs text-[var(--pen)]">
               {error}
             </div>
           ) : null}
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4 text-xs font-sans">
             <div>
               <label
                 htmlFor="name"
-                className="mb-2 block text-sm font-medium text-slate-300"
+                className="mb-1.5 block font-medium text-[var(--ink)]"
               >
-                Full name
+                Full Name
               </label>
 
               <input
                 id="name"
                 type="text"
-                placeholder="Your name"
+                placeholder="Ada Lovelace"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 required
-                className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+                disabled={isLoading}
+                className="w-full rounded-[2px] border border-[var(--ink-hairline)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--ink)] outline-none transition placeholder:text-[var(--ink-faint)]/50 focus:border-[var(--pen)] disabled:opacity-50"
               />
             </div>
 
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-300"
+                className="mb-1.5 block font-medium text-[var(--ink)]"
               >
-                Email address
+                Email Address
               </label>
 
               <input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="ada@analytical.engine"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
-                className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+                disabled={isLoading}
+                className="w-full rounded-[2px] border border-[var(--ink-hairline)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--ink)] outline-none transition placeholder:text-[var(--ink-faint)]/50 focus:border-[var(--pen)] disabled:opacity-50"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="mb-2 block text-sm font-medium text-slate-300"
+                className="mb-1.5 block font-medium text-[var(--ink)]"
               >
                 Password
               </label>
@@ -121,12 +122,13 @@ export default function RegisterPage() {
               <input
                 id="password"
                 type="password"
-                placeholder="Create a password"
+                placeholder="Minimum 6 characters"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
                 minLength={6}
-                className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400"
+                disabled={isLoading}
+                className="w-full rounded-[2px] border border-[var(--ink-hairline)] bg-[var(--paper)] px-3 py-2 text-xs text-[var(--ink)] outline-none transition placeholder:text-[var(--ink-faint)]/50 focus:border-[var(--pen)] disabled:opacity-50"
               />
             </div>
 
@@ -135,20 +137,23 @@ export default function RegisterPage() {
               disabled={isLoading}
               className={
                 isLoading
-                  ? "w-full cursor-not-allowed rounded-xl bg-slate-700 px-4 py-3 font-semibold text-slate-400"
-                  : "w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                  ? "mt-2 w-full cursor-not-allowed rounded-[4px] bg-[var(--ink-hairline)] px-4 py-2.5 text-xs font-medium text-[var(--ink-faint)]"
+                  : "mt-2 w-full rounded-[4px] bg-[var(--pen)] px-4 py-2.5 text-xs font-medium text-white transition hover:bg-[var(--pen-hover)]"
               }
             >
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? "Creating record..." : "Register Reviewer"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-cyan-300">
-              Login
+          <div className="mt-6 pt-5 border-t border-[var(--ink-hairline)] text-center text-xs text-[var(--ink-faint)]">
+            Already registered?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-[var(--pen)] hover:underline"
+            >
+              Log in instead
             </Link>
-          </p>
+          </div>
         </div>
       </div>
     </main>

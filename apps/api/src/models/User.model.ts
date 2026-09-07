@@ -26,6 +26,11 @@ const userSchema = new Schema(
       select: false,
     },
 
+    avatar: {
+      type: String,
+      default: "",
+    },
+
     role: {
       type: String,
       enum: ["user", "admin"],

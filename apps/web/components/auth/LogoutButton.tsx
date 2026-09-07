@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { clearAuthSession } from "@/utils/auth-storage";
 
 type LogoutButtonProps = {
@@ -15,8 +16,13 @@ export function LogoutButton({
 }: LogoutButtonProps) {
   const router = useRouter();
 
-  function handleLogout() {
+  async function handleLogout() {
     clearAuthSession();
+    try {
+      await signOut({ redirect: false });
+    } catch {
+      // Benign if NextAuth session was not active
+    }
     router.replace("/login");
   }
 

@@ -3,37 +3,50 @@ import { Logo } from "@/components/common/Logo";
 
 export function Navbar() {
   return (
-    <nav className="border-b border-white/10">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    <nav className="border-b border-[var(--ink-hairline)] bg-[var(--paper)]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/">
           <Logo />
         </Link>
 
-        <div className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-          <a href="#features" className="hover:text-white">
+        <div className="hidden items-center gap-6 text-sm text-[var(--ink-faint)] md:flex">
+          <a
+            href="#concept"
+            className="transition hover:text-[var(--ink)]"
+          >
+            Concept
+          </a>
+          <a
+            href="#ledger"
+            className="transition hover:text-[var(--ink)]"
+          >
+            The Ledger
+          </a>
+          <a
+            href="#features"
+            className="transition hover:text-[var(--ink)]"
+          >
             Features
           </a>
-
-          <a href="#how-it-works" className="hover:text-white">
-            How it works
-          </a>
-
-          <a href="#tech-stack" className="hover:text-white">
-            Tech Stack
+          <a
+            href="#how-it-works"
+            className="transition hover:text-[var(--ink)]"
+          >
+            Workflow
           </a>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden text-sm font-medium text-slate-300 transition hover:text-white sm:block"
+            className="hidden text-sm font-medium text-[var(--ink)] px-3 py-1.5 transition hover:bg-[var(--paper-raised)] rounded-[4px] border border-transparent sm:block"
           >
-            Login
+            Log in
           </Link>
 
           <Link
             href="/register"
-            className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
+            className="rounded-[4px] bg-[var(--pen)] px-4 py-2 text-sm font-medium text-white transition hover:bg-[var(--pen-hover)]"
           >
             Start Reviewing
           </Link>

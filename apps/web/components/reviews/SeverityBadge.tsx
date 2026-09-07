@@ -1,23 +1,34 @@
-import type { Severity } from "@/types/review";
+import type { Severity, SeverityLevel } from "@/types/review";
 
-const severityStyles: Record<Severity, string> = {
-  Critical: "border-red-400/30 bg-red-400/10 text-red-300",
-  High: "border-orange-400/30 bg-orange-400/10 text-orange-300",
-  Medium: "border-yellow-400/30 bg-yellow-400/10 text-yellow-300",
-  Low: "border-blue-400/30 bg-blue-400/10 text-blue-300",
-  Suggestion: "border-slate-400/30 bg-slate-400/10 text-slate-300",
-};
+type SeverityProp = SeverityLevel | Severity | string;
 
-type SeverityBadgeProps = {
-  severity: Severity;
-};
+export function SeverityBadge({ severity }: { severity: SeverityProp }) {
+  const norm = (severity || "low").toString().toLowerCase();
 
-export function SeverityBadge({ severity }: SeverityBadgeProps) {
+  let colorClass = "text-[var(--ink-faint)]";
+  let label = severity;
+
+  if (norm === "critical") {
+    colorClass = "text-[var(--pen)] font-medium";
+    label = "Critical";
+  } else if (norm === "high") {
+    colorClass = "text-[var(--diff-del)] font-medium";
+    label = "High";
+  } else if (norm === "medium") {
+    colorClass = "text-[var(--ink)]";
+    label = "Medium";
+  } else if (norm === "low") {
+    colorClass = "text-[var(--ink-faint)]";
+    label = "Low";
+  } else if (norm === "suggestion") {
+    colorClass = "text-[var(--ink-faint)]";
+    label = "Suggestion";
+  }
+
   return (
-    <span
-      className={`rounded-full border px-3 py-1 text-xs font-medium ${severityStyles[severity]}`}
-    >
-      {severity}
+    <span className={`inline-flex items-center gap-1.5 font-mono text-xs ${colorClass}`}>
+      <span className="text-[8px] leading-none select-none">■</span>
+      <span className="capitalize">{label}</span>
     </span>
   );
 }

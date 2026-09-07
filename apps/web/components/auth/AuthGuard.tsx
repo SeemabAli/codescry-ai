@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/services/auth.service";
 import {
   clearAuthSession,
   getAuthToken,
+  getStoredUser,
   saveAuthSession,
 } from "@/utils/auth-storage";
 
@@ -26,6 +27,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     async function verifyAuth() {
       const token = getAuthToken();
+      const storedUser = getStoredUser();
 
       if (!token) {
         clearAuthSession();
@@ -47,7 +49,15 @@ export function AuthGuard({ children }: AuthGuardProps) {
           setStatus("authenticated");
         }
       } catch (error) {
-        console.error("Auth verification failed:", error);
+        console.error("Auth verification error:", error);
+
+        // If stored user exists, allow optimistic access if offline/network error
+        if (storedUser && error instanceof Error && error.message.includes("fetch")) {
+          if (isMounted) {
+            setStatus("authenticated");
+          }
+          return;
+        }
 
         clearAuthSession();
 
